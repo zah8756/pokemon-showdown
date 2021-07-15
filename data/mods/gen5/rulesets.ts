@@ -1,7 +1,7 @@
 export const Rulesets: {[k: string]: ModdedFormatData} = {
-    standard: {
-        inherit: true,
-        ruleset: [
+	standard: {
+		inherit: true,
+			ruleset: [
             'Team Preview', 'Species Clause', 'Nickname Clause', 'OHKO Clause', 'Moody Clause', 'Evasion Moves Clause', 'Endless Battle Clause', 'HP Percentage Mod', 'Cancel Mod', 'Item Clause',
         ],
     },
