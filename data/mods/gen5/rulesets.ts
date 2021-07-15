@@ -1,21 +1,21 @@
 export const Rulesets: {[k: string]: ModdedFormatData} = {
 	standard: {
 		inherit: true,
-			ruleset: [
-            'Team Preview', 'Species Clause', 'Nickname Clause', 'OHKO Clause', 'Moody Clause', 'Evasion Moves Clause', 'Endless Battle Clause', 'HP Percentage Mod', 'Cancel Mod', 'Item Clause',
-        ],
-    },
-    obtainablemoves: {
-        inherit: true,
-        banlist: [
-            // Shell Smash: Clamperl Gen 5+ level-up
-            // Sucker Punch: Huntail Gen 4 tutor
-            'Huntail + Shell Smash + Sucker Punch',
-            'Sand Stream + Sand Rush',
-            'Drizzle + Swift Swim',
-            'Drought + Chlorophyll',
-        ],
-    },
+		ruleset: [
+			'Team Preview', 'Species Clause', 'Nickname Clause', 'OHKO Clause', 'Moody Clause', 'Evasion Moves Clause', 'Endless Battle Clause', 'HP Percentage Mod', 'Cancel Mod', 'Item Clause',
+		],
+	},
+	obtainablemoves: {
+		inherit: true,
+		banlist: [
+			// Shell Smash: Clamperl Gen 5+ level-up
+			// Sucker Punch: Huntail Gen 4 tutor
+			'Huntail + Shell Smash + Sucker Punch',
+			'Sand Stream + Sand Rush',
+			'Drizzle + Swift Swim',
+			'Drought + Chlorophyll',
+		],
+	},
 	teampreview: {
 		inherit: true,
 		onTeamPreview() {
