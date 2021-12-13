@@ -443,6 +443,16 @@ export const Formats: FormatList = [
 		section: "National Dex",
 	},
 	{
+		name: "[Gen 8] HDL Team Battle",
+
+		mod: 'gen8',
+		gameType: 'multi',
+		ruleset: [
+			'Max Team Size = 3',
+			'Standard NatDex', 'OHKO Clause', 'Evasion Moves Clause', 'Species Clause', 'Dynamax Clause', 'Sleep Clause Mod'
+		],
+	},
+	{
 		name: "[Gen 8] National Dex",
 		threads: [
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3666135/">National Dex Metagame Discussion</a>`,
@@ -460,16 +470,6 @@ export const Formats: FormatList = [
 			'Necrozma-Ultra', 'Palkia', 'Pheromosa', 'Rayquaza', 'Reshiram', 'Salamence-Mega', 'Shaymin-Sky', 'Solgaleo', 'Spectrier', 'Tornadus-Therian',
 			'Urshifu-Base', 'Xerneas', 'Yveltal', 'Zacian', 'Zacian-Crowned', 'Zamazenta', 'Zamazenta-Crowned', 'Zekrom', 'Zygarde-Base', 'Zygarde-Complete',
 			'Arena Trap', 'Moody', 'Power Construct', 'Shadow Tag', 'Baton Pass',
-		],
-	},
-	{
-		name: "[Gen 8] HDL Team Battle",
-
-		mod: 'gen8',
-		gameType: 'multi',
-		ruleset: [
-			'Max Team Size = 3',
-			'Standard NatDex', 'OHKO Clause', 'Evasion Moves Clause', 'Species Clause', 'Dynamax Clause', 'Sleep Clause Mod'
 		],
 	},
 	{
