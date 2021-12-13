@@ -463,6 +463,16 @@ export const Formats: FormatList = [
 		],
 	},
 	{
+		name: "[Gen 8] HDL Team Battle",
+
+		mod: 'gen8',
+		gameType: 'multi',
+		ruleset: [
+			'Max Team Size = 3',
+			'Standard NatDex', 'OHKO Clause', 'Evasion Moves Clause', 'Species Clause', 'Dynamax Clause', 'Sleep Clause Mod'
+		],
+	},
+	{
 		name: "[Gen 8] National Dex UU",
 		threads: [
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3660920/">National Dex UU Metagame Discussion</a>`,
