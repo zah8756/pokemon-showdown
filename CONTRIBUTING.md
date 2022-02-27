@@ -28,7 +28,7 @@ Also useful is the Suggestions forum (you don't need to worry about approval if 
 
 Also useful is the Mechanics Bugs kanban board: https://github.com/smogon/pokemon-showdown/projects/3
 
-There's no need to worry about code standards too much (unit tests will automatically catch most of what we care about, we'll point out the rest if you make a pull request), but there here if you want them.
+There's no need to worry about code standards too much (unit tests will automatically catch most of what we care about, we'll point out the rest if you make a pull request), but they're here if you want them.
 
 We try to respond to pull requests within a few days, but feel free to bump yours if it seems like we forget about it. Sometimes we did, and sometimes there might be a miscommunication in terms of who is waiting for what.
 
@@ -57,6 +57,8 @@ The fewer words you use, the less likely someone is to gloss over it, and the ea
 Buttons and links that say "Click here" or "Look at this" are bad for a number of reasons, but the most important one is probably because it violates the principle that you shouldn't need to read outside the button to know what the button does. The way people use interfaces is by looking for buttons that do what they want, not by reading every word from beginning to end.
 
 In addition, blind users in particular navigate by link text, so a blind user will have a much harder time figuring out where a link goes if it only says "click here".
+
+For similar reasons, buttons should not say "Yes" or "No" or "Confirm". Instead of "Delete this file? [Yes] [No]", you should just use "[Delete] [Cancel]". This is especially important for complex questions where it could be easy to lose track of which side is "yes" and which side is "no".
 
 ### D3. Remove unnecessary clicks
 

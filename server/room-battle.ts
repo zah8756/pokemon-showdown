@@ -234,6 +234,10 @@ export class RoomBattleTimer {
 	start(requester?: User) {
 		const userid = requester ? requester.id : 'staff' as ID;
 		if (this.timerRequesters.has(userid)) return false;
+		if (this.battle.ended) {
+			requester?.sendTo(this.battle.roomid, `|inactiveoff|The timer can't be enabled after a battle has ended.`);
+			return false;
+		}
 		if (this.timer) {
 			this.battle.room.add(`|inactive|${requester ? requester.name : userid} also wants the timer to be on.`).update();
 			this.timerRequesters.add(userid);
@@ -738,6 +742,7 @@ export class RoomBattle extends RoomGames.RoomGame {
 			user.popup(`Failed to leave battle - you're not a player.`);
 			return false;
 		}
+		Chat.runHandlers('onBattleLeave', user, this.room);
 
 		this.updatePlayer(player, null);
 		this.room.auth.set(user.id, '+');
@@ -752,7 +757,7 @@ export class RoomBattle extends RoomGames.RoomGame {
 				if (!this.room) return; // room deleted in the middle of simulation
 				this.receive(next.split('\n'));
 			}
-		} catch (err) {
+		} catch (err: any) {
 			// Disconnected processes are already crashlogged when they happen;
 			// also logging every battle room would overwhelm the crashlogger
 			if (err.message.includes('Process disconnected')) {
@@ -848,6 +853,7 @@ export class RoomBattle extends RoomGames.RoomGame {
 		const p2name = this.p2.name;
 		const p1id = toID(p1name);
 		const p2id = toID(p2name);
+		Chat.runHandlers('onBattleEnd', this, winnerid, [p1id, p2id, this.p3?.id, this.p4?.id].filter(Boolean));
 		if (this.room.rated) {
 			this.room.rated = 0;
 
@@ -863,6 +869,7 @@ export class RoomBattle extends RoomGames.RoomGame {
 			}
 			const [score, p1rating, p2rating] = await Ladders(this.ladder).updateRating(p1name, p2name, p1score, this.room);
 			void this.logBattle(score, p1rating, p2rating);
+			Chat.runHandlers('onBattleRanked', this, winnerid, [p1rating, p2rating], [p1id, p2id]);
 		} else if (Config.logchallenges) {
 			if (winnerid === p1id) {
 				p1score = 1;
@@ -930,7 +937,7 @@ export class RoomBattle extends RoomGames.RoomGame {
 
 		const logsubfolder = Chat.toTimestamp(date).split(' ')[0];
 		const logfolder = logsubfolder.split('-', 2).join('-');
-		const tier = this.room.format.toLowerCase().replace(/[^a-z0-9]+/g, '');
+		const tier = Dex.formats.get(this.room.format).id;
 		const logpath = `logs/${logfolder}/${tier}/${logsubfolder}/`;
 
 		await FS(logpath).mkdirp();
@@ -1133,14 +1140,14 @@ export class RoomBattle extends RoomGames.RoomGame {
 
 	static battleForcedSetting(user: User, key: 'modchat' | 'privacy') {
 		if (Config.forcedpublicprefixes) {
-			if (!Config.forcedprefixes) Config.forcedprefixes = {};
-			if (!Config.forcedprefixes.privacy) Config.forcedprefixes.privacy = [];
-			Config.forcedprefixes.privacy.push(...Config.forcedpublicprefixes);
+			for (const prefix of Config.forcedpublicprefixes) {
+				Chat.plugins['username-prefixes']?.prefixManager.addPrefix(prefix, 'privacy');
+			}
 			delete Config.forcedpublicprefixes;
 		}
-		if (!Config.forcedprefixes?.[key]) return null;
-		for (const prefix of Config.forcedprefixes[key]) {
-			if (user.id.startsWith(toID(prefix))) return prefix;
+		if (!Config.forcedprefixes) return null;
+		for (const {type, prefix} of Config.forcedprefixes) {
+			if (user.id.startsWith(toID(prefix)) && type === key) return prefix;
 		}
 		return null;
 	}
@@ -1290,7 +1297,7 @@ export class RoomBattle extends RoomGames.RoomGame {
 	onChatMessage(message: string, user: User) {
 		const parts = message.split('\n');
 		for (const line of parts) {
-			void this.stream.write(`>chat-inputlogonly ${user.getIdentity(this.room.roomid)}|${line}`);
+			void this.stream.write(`>chat-inputlogonly ${user.getIdentity(this.room)}|${line}`);
 		}
 	}
 	async getLog(): Promise<string[] | void> {
@@ -1357,7 +1364,6 @@ export const PM = new ProcessManager.StreamProcessManager(module, () => new Room
 if (!PM.isParentProcess) {
 	// This is a child process!
 	global.Config = require('./config-loader').Config;
-	global.Chat = require('./chat').Chat;
 	global.Dex = require('../sim/dex').Dex;
 	global.Monitor = {
 		crashlog(error: Error, source = 'A simulator process', details: AnyObject | null = null) {
@@ -1379,7 +1385,7 @@ if (!PM.isParentProcess) {
 		global.__version.head = ('' + head).trim();
 		const origin = ('' + merge).trim();
 		if (origin !== global.__version.head) global.__version.origin = origin;
-	} catch (e) {}
+	} catch {}
 
 	if (Config.crashguard) {
 		// graceful crash - allow current battles to finish before restarting

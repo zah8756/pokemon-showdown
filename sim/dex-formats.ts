@@ -4,8 +4,6 @@ import {EventMethods} from './dex-conditions';
 import {Tags} from '../data/tags';
 
 const DEFAULT_MOD = 'gen8';
-const MAIN_FORMATS = `${__dirname}/../.config-dist/formats`;
-const CUSTOM_FORMATS = `${__dirname}/../.config-dist/custom-formats`;
 
 export interface FormatData extends Partial<Format>, EventMethods {
 	name: string;
@@ -225,7 +223,7 @@ export class RuleTable extends Map<string, string> {
 		}
 		if (this.valueRules.get('evlimit') === 'Auto') {
 			this.evLimit = dex.gen > 2 ? 510 : null;
-			if (format.mod === 'letsgo') {
+			if (format.mod === 'gen7letsgo') {
 				this.evLimit = this.has('allowavs') ? null : 0;
 			}
 			// Gen 6 hackmons also has a limit, which is currently implemented
@@ -318,6 +316,10 @@ export class RuleTable extends Map<string, string> {
 		if ((format as any).maxForcedLevel) {
 			throw new Error(`maxForcedLevel is now a rule: "Adjust Level Down = NUMBER"`);
 		}
+	}
+
+	hasComplexBans() {
+		return (this.complexBans?.length > 0) || (this.complexTeamBans?.length > 0);
 	}
 }
 
@@ -506,16 +508,16 @@ export class DexFormats {
 		// Load formats
 		let customFormats;
 		try {
-			customFormats = require(CUSTOM_FORMATS).Formats;
+			customFormats = require(`${__dirname}/../config/custom-formats`).Formats;
 			if (!Array.isArray(customFormats)) {
 				throw new TypeError(`Exported property 'Formats' from "./config/custom-formats.ts" must be an array`);
 			}
-		} catch (e) {
+		} catch (e: any) {
 			if (e.code !== 'MODULE_NOT_FOUND' && e.code !== 'ENOENT') {
 				throw e;
 			}
 		}
-		let Formats: AnyObject[] = require(MAIN_FORMATS).Formats;
+		let Formats: AnyObject[] = require(`${__dirname}/../config/formats`).Formats;
 		if (!Array.isArray(Formats)) {
 			throw new TypeError(`Exported property 'Formats' from "./config/formats.ts" must be an array`);
 		}
@@ -597,7 +599,7 @@ export class DexFormats {
 				try {
 					name = this.validate(name);
 					isTrusted = true;
-				} catch (e) {}
+				} catch {}
 			}
 			const [newName, customRulesString] = name.split('@@@', 2);
 			name = newName.trim();
@@ -830,7 +832,6 @@ export class DexFormats {
 		case '-':
 		case '*':
 		case '+':
-			if (format?.team) throw new Error(`We don't currently support bans in generated teams`);
 			if (rule.slice(1).includes('>') || rule.slice(1).includes('+')) {
 				let buf = rule.slice(1);
 				const gtIndex = buf.lastIndexOf('>');
@@ -914,7 +915,7 @@ export class DexFormats {
 			if (table.hasOwnProperty(id)) {
 				if (matchType === 'pokemon') {
 					const species: Species = table[id] as Species;
-					if (species.otherFormes && ruleid !== species.id + toID(species.baseForme)) {
+					if ((species.otherFormes || species.cosmeticFormes) && ruleid !== species.id + toID(species.baseForme)) {
 						matches.push('basepokemon:' + id);
 						continue;
 					}
